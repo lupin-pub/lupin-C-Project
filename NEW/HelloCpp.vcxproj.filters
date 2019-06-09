@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="win32">
+      <UniqueIdentifier>{84a8ebd7-7cf0-47f6-b75e-d441df67da40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resource">
+      <UniqueIdentifier>{715254bc-d70b-4ec5-bf29-467dd3ace079}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{bb6c862e-70e9-49d9-81b7-3829a6f50471}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\human">
+      <UniqueIdentifier>{79adcce8-8884-4086-a6db-966ca2a17bb7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\AppDelegate.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\HelloWorldScene.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseTower.cpp">
+      <Filter>src\human</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseMonster.cpp">
+      <Filter>src\human</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseMap.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="GameManager.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="Yase.cpp">
+      <Filter>src\human</Filter>
+    </ClCompile>
+    <ClCompile Include="Daji.cpp">
+      <Filter>src\human</Filter>
+    </ClCompile>
+    <ClCompile Include="Houyi.cpp">
+      <Filter>src\human</Filter>
+    </ClCompile>
+    <ClCompile Include="ShortSoldier.cpp">
+      <Filter>src\human</Filter>
+    </ClCompile>
+    <ClCompile Include="LongSoldier.cpp">
+      <Filter>src\human</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobalManager.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="main.h">
+      <Filter>win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\AppDelegate.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\HelloWorldScene.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseTower.h">
+      <Filter>src\human</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseMonster.h">
+      <Filter>src\human</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseMap.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="GameManager.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="Yase.h">
+      <Filter>src\human</Filter>
+    </ClInclude>
+    <ClInclude Include="Daji.h">
+      <Filter>src\human</Filter>
+    </ClInclude>
+    <ClInclude Include="Houyi.h">
+      <Filter>src\human</Filter>
+    </ClInclude>
+    <ClInclude Include="ShortSoldier.h">
+      <Filter>src\human</Filter>
+    </ClInclude>
+    <ClInclude Include="LongSoldier.h">
+      <Filter>src\human</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalManager.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="game.rc">
+      <Filter>resource</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
