@@ -6,8 +6,8 @@
 USING_NS_CC;
 
 BaseMonster::BaseMonster()
-	:baseSprite(NULL),//É¶
-	pointCounter(0),//ÕâÊÇ¸öÉ¶
+	:baseSprite(NULL),//å•¥
+	pointCounter(0),//è¿™æ˜¯ä¸ªå•¥
 	runSpeed(0)
 	, maxHp(0)
 	, currHp(0)
@@ -15,12 +15,12 @@ BaseMonster::BaseMonster()
 	, hpPercentage(100)
 	, hpBar(NULL)
 	, lastState(stateNone)
-	//, attackBySoldier(true)//ÕâÁ©
-	//, attackByTower(true)//Ó¦¸ÃÄÜºÏ²¢
+	//, attackBySoldier(true)//è¿™ä¿©
+	//, attackByTower(true)//åº”è¯¥èƒ½åˆå¹¶
 	, isAttacking(false)
 	, isSlowed(false)
 	, money(0)
-	, usualHpAdd(1)  //¹ÃÇÒÏÈ¼ÓÑªÁ¿¼Ó1°É Ğ¡ÀÏµÜÃÇÓĞ¿ÕÁË¿ÉÒÔÊµÏÖÒ»ÏÂ²»Í¬Ó¢ĞÛ¼ÓÑªËÙ¶È²»Í¬ÒÔ¼°×°±¸¼ÓÑªµÄ¹¦ÄÜ 
+	, usualHpAdd(1)  //å§‘ä¸”å…ˆåŠ è¡€é‡åŠ 1å§ å°è€å¼Ÿä»¬æœ‰ç©ºäº†å¯ä»¥å®ç°ä¸€ä¸‹ä¸åŒè‹±é›„åŠ è¡€é€Ÿåº¦ä¸åŒä»¥åŠè£…å¤‡åŠ è¡€çš„åŠŸèƒ½ 
 	, homeHpAdd(10)
 {}
 
@@ -39,20 +39,20 @@ bool BaseMonster::init()
 
 void BaseMonster::createAndSetHpBar()
 {
-	hpBgSprite = Sprite::createWithSpriteFrameName("");//ºÃ¶«Î÷£¡Ö®Ç°¼û¹ıµÄ£¡£¡£¡ÄÄ¼ûµÄ²»¼ÇµÃÁËàÓàÓàÓ
+	hpBgSprite = Sprite::createWithSpriteFrameName("blood1.png");//å¥½ä¸œè¥¿ï¼ä¹‹å‰è§è¿‡çš„ï¼ï¼ï¼å“ªè§çš„ä¸è®°å¾—äº†å˜¤å˜¤å˜¤
 
 	hpBgSprite->setPosition(Point(baseSprite->getContentSize().width / 2, baseSprite->getContentSize().height));
 	baseSprite->addChild(hpBgSprite);
 
-	hpBar = ProgressTimer::create(Sprite::createWithSpriteFrameName(""));
+	hpBar = ProgressTimer::create(Sprite::createWithSpriteFrameName("blood2.png"));
 	hpBar->setType(ProgressTimer::Type::BAR);
-	hpBar->setMidpoint(Point(0, 0.5f));//¿ªÊ¼µã ×óÖĞ£¿
-	hpBar->setBarChangeRate(Point(1, 0));//Ë®Æ½·½ÏòÕ¹¿ª
+	hpBar->setMidpoint(Point(0, 0.5f));//å¼€å§‹ç‚¹ å·¦ä¸­ï¼Ÿ
+	hpBar->setBarChangeRate(Point(1, 0));//æ°´å¹³æ–¹å‘å±•å¼€
 	hpBar->setPercentage(hpPercentage);
 	hpBar->setPosition(Point(hpBgSprite->getContentSize().width / 2, hpBgSprite->getContentSize().height / 2));
-	hpBar->setTag(666);  //¼ÓÁË¸ö±êÇ© 
+	hpBar->setTag(666);  //åŠ äº†ä¸ªæ ‡ç­¾ 
 	hpBgSprite->addChild(hpBar);
-	if(getmonsterType()== ) //ÕâÇ·È±ºÃ¶à°¡ ËûµÄtype´ÓÄÄ¶ùÀ´µÄ°¡  whateverÔÙËµ°É
+	if(getmonsterType()== ) //è¿™æ¬ ç¼ºå¥½å¤šå•Š ä»–çš„typeä»å“ªå„¿æ¥çš„å•Š  whateverå†è¯´å§
 	{
 		 schedule(schedule_selector(BaseMonster::hpSchedule),0.1f); 
 	} 
@@ -61,9 +61,9 @@ void BaseMonster::createAndSetHpBar()
 
 void BaseMonster::Home()
 {
-	//¼ÓÒ»ÏÂĞ§¹û 
-	//ÑÓ³ÙÒ»ÏÂÊ±¼ä 
-	this->setPosition( , )//»ùµØ×ø±ê 
+	//åŠ ä¸€ä¸‹æ•ˆæœ 
+	//å»¶è¿Ÿä¸€ä¸‹æ—¶é—´ 
+	this->setPosition( , )//åŸºåœ°åæ ‡ 
 }
 
 void BaseMonster:: hpSchedule(float dt)
@@ -108,12 +108,12 @@ void BaseMonster::checkNearestMonster()
 		for (int i = 0; i < monsterBlueVector.size(); i++)
 		{
 			auto monster = monsterBlueVector.at(i);
-			double distance = this->baseSprite->getPosition().getDistance(monster->baseSprite->getPosition());//È¥µôÁËgetParent() ¼ÓÁËbaseSprite Ó¦¸ÃÊÇÕâÑù°ÉĞéĞéĞé
+			double distance = this->baseSprite->getPosition().getDistance(monster->baseSprite->getPosition());//å»æ‰äº†getParent() åŠ äº†baseSprite åº”è¯¥æ˜¯è¿™æ ·å§è™šè™šè™š
 
-			if (distance < currMinDistant&&monster->getState() != 7)//ÔÚËşµÄ·¶Î§ÄÚÇÒ¿ÉÒÔ±»¹¥»÷
+			if (distance < currMinDistant&&monster->getState() != 7)//åœ¨å¡”çš„èŒƒå›´å†…ä¸”å¯ä»¥è¢«æ”»å‡»
 			{
-				currMinDistant = distance;//¹¥»÷×î½ü¹ÖÎï
-				monsterTemp = monster;//Ä¿Ç°¹¥»÷µÄ¹ÖÎï
+				currMinDistant = distance;//æ”»å‡»æœ€è¿‘æ€ªç‰©
+				monsterTemp = monster;//ç›®å‰æ”»å‡»çš„æ€ªç‰©
 			}
 		}
 		nearestMonster = monsterTemp;
@@ -132,10 +132,10 @@ void BaseMonster::checkNearestMonster()
 			auto monster = monsterRedVector.at(i);
 			double distance = this->baseSprite->getPosition().getDistance(monster->baseSprite->getPosition());
 
-			if (distance < currMinDistant&&monster->getState() != 7)//ÔÚËşµÄ·¶Î§ÄÚÇÒ¿ÉÒÔ±»¹¥»÷
+			if (distance < currMinDistant&&monster->getState() != 7)//åœ¨å¡”çš„èŒƒå›´å†…ä¸”å¯ä»¥è¢«æ”»å‡»
 			{
-				currMinDistant = distance;//¹¥»÷×î½ü¹ÖÎï
-				monsterTemp = monster;//Ä¿Ç°¹¥»÷µÄ¹ÖÎï
+				currMinDistant = distance;//æ”»å‡»æœ€è¿‘æ€ªç‰©
+				monsterTemp = monster;//ç›®å‰æ”»å‡»çš„æ€ªç‰©
 			}
 		}
 		nearestMonster = monsterTemp;
@@ -152,7 +152,7 @@ void BaseMonster::death()
 	else if (getMonsterColor() == 2)
 	{
 		if (GameManager::getInstance()->monsterBlueVector.contains(this))
-			GameManager::getInstance()->monsterBlueVector.eraseObject(this);//´ÓvectorÒÆ³ı
+			GameManager::getInstance()->monsterBlueVector.eraseObject(this);//ä»vectorç§»é™¤
 	}
 	if (getState() != stateDeath) {
 		setCurrHp(0);
@@ -163,7 +163,7 @@ void BaseMonster::death()
 		//auto decal_blood = Sprite::createWithSpriteFrameName("decal_blood_0001.png");
 		//decal_blood->setPosition(Point(baseSprite->getContentSize().width / 2, -baseSprite->getContentSize().height / 4));
 		//baseSprite->addChild(decal_blood);
-		//GameManager::getInstance()->MONEY = GameManager::getInstance()->MONEY + getMoney();  £¡£¡£¡£¡£¡ÔÚÓ¢ĞÛµÄshootº¯ÊıÀï»áÓĞÓÃ£¡£¡£¡£¡£¡
+		//GameManager::getInstance()->MONEY = GameManager::getInstance()->MONEY + getMoney();  ï¼ï¼ï¼ï¼ï¼åœ¨è‹±é›„çš„shootå‡½æ•°é‡Œä¼šæœ‰ç”¨ï¼ï¼ï¼ï¼ï¼
 		//baseSprite->runAction(Animate::create(AnimationCache::getInstance()->getAnimation(getName() + "death")));
 		this->runAction(Sequence::create(FadeOut::create(1.0f)
 			, CallFuncN::create(CC_CALLBACK_0(BaseMonster::setVisible, this, false))
@@ -171,7 +171,7 @@ void BaseMonster::death()
 	}
 }
 
-void BaseMonster::shoot(float dt)//Ã¿¸ô¶à¾ÃshootÒ»´Î 0.7
+void BaseMonster::shoot(float dt)//æ¯éš”å¤šä¹…shootä¸€æ¬¡ 0.7
 {
 	auto instance = GameManager::getInstance();//
 	checkNearestMonster();
@@ -181,33 +181,33 @@ void BaseMonster::shoot(float dt)//Ã¿¸ô¶à¾ÃshootÒ»´Î 0.7
 	{
 		spriteBullet = Sprite::create("");
 		addChild(spriteBullet);
-		//auto currBullet = ArrowTowerBullet();//Éú³É¹­¼ı
-		Point shootVector = nearestMonster->getParent()->getPosition() - this->getParent()->getPosition();//Á½µã¼ä ÁôÏÂÁËgeParent
-		//auto pVectr = currBullet->getPosition() - shootVector;//²»ÖªµÀ¸ÉÂï
-		auto moveToAction = MoveTo::create(0.5f, shootVector);//ÎÒ¾õµÃÊÇmoveby°¡
+		//auto currBullet = ArrowTowerBullet();//ç”Ÿæˆå¼“ç®­
+		Point shootVector = nearestMonster->getParent()->getPosition() - this->getParent()->getPosition();//ä¸¤ç‚¹é—´ ç•™ä¸‹äº†geParent
+		//auto pVectr = currBullet->getPosition() - shootVector;//ä¸çŸ¥é“å¹²å˜›
+		auto moveToAction = MoveTo::create(0.5f, shootVector);//æˆ‘è§‰å¾—æ˜¯movebyå•Š
 		//currBullet->runAction(moveToAction);
 		//currBullet->shoot;//removeBullet!!
-		//currBullet->setPosition();//Ëş¶¥ÉÏ
+		//currBullet->setPosition();//å¡”é¡¶ä¸Š
 		//currBullet = NULL;
-		//Ê¿±øÖ»·ÖºìÀ¶Ïò²»Í¬·½Ïò²¥·Å¶¯×÷£¡£¡£¡ÏÒ¶ù£¡£¡£¡
-		spriteBullet->runAction(moveToAction);//, CallFuncN::create(CC_CALLBACK_0(BaseTower::removeBullet, this)), NULL));//BulletActionÑØÖ±Ïß·ÉĞĞ removeBulletÅĞ¶Ï»÷ÖĞ²¢×Óµ¯ÏûÊ§
+		//å£«å…µåªåˆ†çº¢è“å‘ä¸åŒæ–¹å‘æ’­æ”¾åŠ¨ä½œï¼ï¼ï¼å¼¦å„¿ï¼ï¼ï¼
+		spriteBullet->runAction(moveToAction);//, CallFuncN::create(CC_CALLBACK_0(BaseTower::removeBullet, this)), NULL));//BulletActionæ²¿ç›´çº¿é£è¡Œ removeBulletåˆ¤æ–­å‡»ä¸­å¹¶å­å¼¹æ¶ˆå¤±
 		BaseMonster::removeBullet();
 	}
 }
 
 
-void BaseMonster::removeBullet()//¹¥»÷£¡  ±£Ö¤´òÖĞ
+void BaseMonster::removeBullet()//æ”»å‡»ï¼  ä¿è¯æ‰“ä¸­
 {
 	//bool isMissed = true;
 	auto instance = GameManager::getInstance();
     //spriteBullet = Sprite::create("");
-	//addChild(spriteBullet);//addµ½ÄÄÁË
+	//addChild(spriteBullet);//addåˆ°å“ªäº†
 	
-	//bulletËùÔÚ¾ØĞÎÇøÓò
+	//bulletæ‰€åœ¨çŸ©å½¢åŒºåŸŸ
 	//auto bulletRect = Rect(spriteBullet->getPositionX() + this->towerBase->getPositionX() - spriteBullet->getContentSize().width / 2,
 		//spriteBullet->getPositionY() + this->towerBase->getPositionY() - spriteBullet->getContentSize().height / 2,
 		//spriteBullet->getContentSize().width,
-		//spriteBullet->getContentSize().height);//¾Í¾ØĞÎÁË¾Í²»ÓÃÎïÀíÒıÇæÁË rectÇøÓòÕæ²»Ì«»á°¡
+		//spriteBullet->getContentSize().height);//å°±çŸ©å½¢äº†å°±ä¸ç”¨ç‰©ç†å¼•æ“äº† rectåŒºåŸŸçœŸä¸å¤ªä¼šå•Š
 	//if (this->getTowerColor() == 1)//red
 	//{
 		//auto monsterBlueVector = instance->monsterBlueVector;
@@ -220,7 +220,7 @@ void BaseMonster::removeBullet()//¹¥»÷£¡  ±£Ö¤´òÖĞ
 			//{
 				auto currHp = nearestMonster->getCurrHp();
 
-				currHp = currHp - this->getForce();//ÊÜµ½¹¥»÷Hp¼õÉÙ
+				currHp = currHp - this->getForce();//å—åˆ°æ”»å‡»Hpå‡å°‘
 
 				if (currHp <= 0)
 				{
@@ -228,12 +228,12 @@ void BaseMonster::removeBullet()//¹¥»÷£¡  ±£Ö¤´òÖĞ
 				}
 				nearestMonster->setCurrHp(currHp);
 
-				nearestMonster->getHpBar()->setPersentage((currHp / nearestMonster->getMaxHp()) * 100);//¸üĞÂHp
-				//monster->getHurt();     Wow!ÑªĞÈ³¡Ãæ£¡
-				//isMissed = false;//»÷ÖĞ
+				nearestMonster->getHpBar()->setPersentage((currHp / nearestMonster->getMaxHp()) * 100);//æ›´æ–°Hp
+				//monster->getHurt();     Wow!è¡€è…¥åœºé¢ï¼
+				//isMissed = false;//å‡»ä¸­
 				if (currHp == 0)
 				{
-					nearestMonster->death();//ÏûÊ§°¡ vectorÒÆ³ı°¡
+					nearestMonster->death();//æ¶ˆå¤±å•Š vectorç§»é™¤å•Š
 				}
 				//break;
 			//}
@@ -241,7 +241,7 @@ void BaseMonster::removeBullet()//¹¥»÷£¡  ±£Ö¤´òÖĞ
 	//}
 	//else
 	//{
-		//auto monsterRedVector = instance->monsterRedVector;//É¶ÒâË¼°¡
+		//auto monsterRedVector = instance->monsterRedVector;//å•¥æ„æ€å•Š
 
 		//for (int j = 0; j < monsterRedVector.size(); j++)
 		//{
@@ -251,7 +251,7 @@ void BaseMonster::removeBullet()//¹¥»÷£¡  ±£Ö¤´òÖĞ
 			//{
 				//auto currHp = monster->getCurrHp();
 
-				//currHp = currHp - this->getForce();//ÊÜµ½¹¥»÷Hp¼õÉÙ
+				//currHp = currHp - this->getForce();//å—åˆ°æ”»å‡»Hpå‡å°‘
 
 				//if (currHp <= 0)
 				//{
@@ -259,9 +259,9 @@ void BaseMonster::removeBullet()//¹¥»÷£¡  ±£Ö¤´òÖĞ
 				//}
 				//monster->setCurrHp(currHp);
 
-				//monster->getHpBar()->setPersentage((currHp / monster->getMaxHp()) * 100);//¸üĞÂHp
-				//monster->getHurt();     Wow!ÑªĞÈ³¡Ãæ£¡
-				//isMissed = false;//»÷ÖĞ
+				//monster->getHpBar()->setPersentage((currHp / monster->getMaxHp()) * 100);//æ›´æ–°Hp
+				//monster->getHurt();     Wow!è¡€è…¥åœºé¢ï¼
+				//isMissed = false;//å‡»ä¸­
 				//if (currHp == 0)
 				//{
 					//monster->death();
@@ -270,11 +270,11 @@ void BaseMonster::removeBullet()//¹¥»÷£¡  ±£Ö¤´òÖĞ
 			//}
 		//}
 	//}
-	//²»¹Ü»÷²»»÷ÖĞ¶¼ÏûÊ§
+	//ä¸ç®¡å‡»ä¸å‡»ä¸­éƒ½æ¶ˆå¤±
 	spriteBullet->removeFromParent();
 	/*if (isMissed)
 	{
-		//ÈôÎ´»÷ÖĞ
+		//è‹¥æœªå‡»ä¸­
 	}
 	else
 	{
@@ -283,18 +283,18 @@ void BaseMonster::removeBullet()//¹¥»÷£¡  ±£Ö¤´òÖĞ
 
 }
 
-/*void BaseMonster::removeBullet()//¹¥»÷£¡
+/*void BaseMonster::removeBullet()//æ”»å‡»ï¼
 {
 	bool isMissed = true;
 	auto instance = GameManager::getInstance();
 	auto spriteBullet = Sprite::create("");
 	addChild(spriteBullet);
 
-	//bulletËùÔÚ¾ØĞÎÇøÓò
+	//bulletæ‰€åœ¨çŸ©å½¢åŒºåŸŸ
 	auto bulletRect = Rect(spriteBullet->getPositionX() + this->getPositionX() - spriteBullet->getContentSize().width / 2,
 		spriteBullet->getPositionY() + this->getPositionY() - spriteBullet->getContentSize().height / 2,
-		spriteBullet->getContentSize().width,//¶Ô²»¶ÔÄØ ÔÛÒ²²»ÖªµÀ
-		spriteBullet->getContentSize().height);//¾Í¾ØĞÎÁË¾Í²»ÓÃÎïÀíÒıÇæÁË
+		spriteBullet->getContentSize().width,//å¯¹ä¸å¯¹å‘¢ å’±ä¹Ÿä¸çŸ¥é“
+		spriteBullet->getContentSize().height);//å°±çŸ©å½¢äº†å°±ä¸ç”¨ç‰©ç†å¼•æ“äº†
 	if (this->getMonsterColor() == 1)//red
 	{
 		auto monsterBlueVector = instance->monsterBlueVector;
@@ -307,7 +307,7 @@ void BaseMonster::removeBullet()//¹¥»÷£¡  ±£Ö¤´òÖĞ
 			{
 				auto currHp = monster->getCurrHp();
 
-				currHp = currHp - this->getForce();//ÊÜµ½¹¥»÷Hp¼õÉÙ
+				currHp = currHp - this->getForce();//å—åˆ°æ”»å‡»Hpå‡å°‘
 
 				if (currHp <= 0)
 				{
@@ -315,12 +315,12 @@ void BaseMonster::removeBullet()//¹¥»÷£¡  ±£Ö¤´òÖĞ
 				}
 				monster->setCurrHp(currHp);
 
-				monster->getHpBar()->setPersentage((currHp / monster->getMaxHp()) * 100);//¸üĞÂHp
-				//monster->getHurt();     Wow!ÑªĞÈ³¡Ãæ£¡
-				isMissed = false;//»÷ÖĞ
+				monster->getHpBar()->setPersentage((currHp / monster->getMaxHp()) * 100);//æ›´æ–°Hp
+				//monster->getHurt();     Wow!è¡€è…¥åœºé¢ï¼
+				isMissed = false;//å‡»ä¸­
 				if (currHp == 0)
 				{
-					monster->death();//ÏûÊ§°¡ vectorÒÆ³ı°¡
+					monster->death();//æ¶ˆå¤±å•Š vectorç§»é™¤å•Š
 				}
 				break;
 			}
@@ -328,7 +328,7 @@ void BaseMonster::removeBullet()//¹¥»÷£¡  ±£Ö¤´òÖĞ
 	}
 	else
 	{
-		auto monsterRedVector = instance->monsterRedVector;//É¶ÒâË¼°¡
+		auto monsterRedVector = instance->monsterRedVector;//å•¥æ„æ€å•Š
 
 		for (int j = 0; j < monsterRedVector.size(); j++)
 		{
@@ -338,7 +338,7 @@ void BaseMonster::removeBullet()//¹¥»÷£¡  ±£Ö¤´òÖĞ
 			{
 				auto currHp = monster->getCurrHp();
 
-				currHp = currHp - this->getForce();//ÊÜµ½¹¥»÷Hp¼õÉÙ
+				currHp = currHp - this->getForce();//å—åˆ°æ”»å‡»Hpå‡å°‘
 
 				if (currHp <= 0)
 				{
@@ -346,9 +346,9 @@ void BaseMonster::removeBullet()//¹¥»÷£¡  ±£Ö¤´òÖĞ
 				}
 				monster->setCurrHp(currHp);
 
-				monster->getHpBar()->setPersentage((currHp / monster->getMaxHp()) * 100);//¸üĞÂHp
-				//monster->getHurt();     Wow!ÑªĞÈ³¡Ãæ£¡
-				isMissed = false;//»÷ÖĞ
+				monster->getHpBar()->setPersentage((currHp / monster->getMaxHp()) * 100);//æ›´æ–°Hp
+				//monster->getHurt();     Wow!è¡€è…¥åœºé¢ï¼
+				isMissed = false;//å‡»ä¸­
 				if (currHp == 0)
 				{
 					monster->death();
@@ -357,11 +357,11 @@ void BaseMonster::removeBullet()//¹¥»÷£¡  ±£Ö¤´òÖĞ
 			}
 		}
 	}
-	//²»¹Ü»÷²»»÷ÖĞ¶¼ÏûÊ§
+	//ä¸ç®¡å‡»ä¸å‡»ä¸­éƒ½æ¶ˆå¤±
 	this->removeFromParent();
 	/*if (isMissed)
 	{
-		//ÈôÎ´»÷ÖĞ
+		//è‹¥æœªå‡»ä¸­
 	}
 	else
 	{
@@ -378,14 +378,14 @@ void BaseMonster::shoot(float dt)
 	//sprintf(temp1,"")
 	if (nearestMonster != NULL /*&& nearestMonster->getCurrHp() > 0)
 	{
-		//auto currBullet = ArrowTowerBullet();//Éú³É¹­¼ı
-		Point shootVector = nearestMonster->baseSprite->getPosition() - this->getPosition();//Á½µã¼ä É¾ÁËgetParent
-		//auto pVectr = currBullet->getPosition() - shootVector;//²»ÖªµÀ¸ÉÂï
-		auto moveToAction = MoveTo::create(0.5f, shootVector);//ÎÒ¾õµÃÊÇmoveby°¡
+		//auto currBullet = ArrowTowerBullet();//ç”Ÿæˆå¼“ç®­
+		Point shootVector = nearestMonster->baseSprite->getPosition() - this->getPosition();//ä¸¤ç‚¹é—´ åˆ äº†getParent
+		//auto pVectr = currBullet->getPosition() - shootVector;//ä¸çŸ¥é“å¹²å˜›
+		auto moveToAction = MoveTo::create(0.5f, shootVector);//æˆ‘è§‰å¾—æ˜¯movebyå•Š
 		//currBullet->runAction(moveToAction);
 		//currBullet->shoot;//removeBullet!!
-		//currBullet->setPosition();//Ëş¶¥ÉÏ
+		//currBullet->setPosition();//å¡”é¡¶ä¸Š
 		//currBullet = NULL;
-		runAction(Sequence::create(moveToAction, CallFuncN::create(CC_CALLBACK_0(BaseTower::removeBullet, this)), NULL));//BulletActionÑØÖ±Ïß·ÉĞĞ removeBulletÅĞ¶Ï»÷ÖĞ²¢×Óµ¯ÏûÊ§
+		runAction(Sequence::create(moveToAction, CallFuncN::create(CC_CALLBACK_0(BaseTower::removeBullet, this)), NULL));//BulletActionæ²¿ç›´çº¿é£è¡Œ removeBulletåˆ¤æ–­å‡»ä¸­å¹¶å­å¼¹æ¶ˆå¤±
 	}
 }*/
