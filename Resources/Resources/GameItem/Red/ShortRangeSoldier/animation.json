@@ -1,0 +1,11 @@
+{
+    "sheets": [
+        { 
+            "coordinatesFileName": "animation.plist",
+            "textureFileName": "animation.png",
+            "width": 386.0,
+            "height": 430.0
+        }
+    ],
+    "signature": "1a518ab80b27c63f125b1dd6695153d4ada7c0f3"
+}

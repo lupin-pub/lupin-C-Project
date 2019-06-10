@@ -47,7 +47,11 @@ public:
 	CC_SYNTHESIZE(float, armor, Armor);
 	CC_SYNTHESIZE(float, hpPercentage, HpPercentage);
 	CC_SYNTHESIZE(MonsterState, state, State);
+<<<<<<< HEAD
 	CC_SYNTHESIZE(int, money, Money);//70
+=======
+	CC_SYNTHESIZE(int, money, Money);
+>>>>>>> 6a48f2df7fe4400390ab0c774485fb41df567c49
 	CC_SYNTHESIZE_READONLY(ProgressTimer*, hpBar, HpBar);//只有get
 	virtual void stopWalking();
 	virtual void restartWalking();
@@ -56,6 +60,10 @@ public:
 	virtual void frozen();
 	virtual void refrozen(float dt);
 	//virtual bool beAttacked(BaseMonster* attacker);//我也不知道这么搞能不能行
+<<<<<<< HEAD
+=======
+	
+>>>>>>> 6a48f2df7fe4400390ab0c774485fb41df567c49
 
 	virtual void checkNearestMonster();//和红蓝方有关
 	virtual void shoot() {};//放在public or protected？？？
@@ -90,5 +98,13 @@ protected:
 	void showInfo();
 	void setListener();
 	Sprite* spriteBullet;
+<<<<<<< HEAD
+=======
+	
+	void hpSchedule(float dt); // 回血 
+	
+	void Home(); //回城补血 
+	
+>>>>>>> 6a48f2df7fe4400390ab0c774485fb41df567c49
 };
 #endif
