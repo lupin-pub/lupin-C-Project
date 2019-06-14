@@ -2,38 +2,56 @@
 #include <winsock2.h>
 #include <fstream>
 #include <random>
-#include <process>
-#include <queue>
 #include <string>
+#include <cstring>
+#include <mutex>
+#include "../   /DJGameScene.h"
+#include "../   /HYGameScene.h"
+#include "../   /YSGameScene.h"
+#include "../   /GameManager.h" 
+#include "../   /BaseMonster.h"
 
+#include "ui/CocosGUI.h"
 #include "cocos2d.h"
-#include "BaseMonster.h"
 #include "webclient.h"
 //还有一些头文件要包括 留坑.. 
 
 #define PORTS 1236  //端口号~~~呼唤钰儿~~~ 
-
-#pragma
-#pragma  //留坑 
-
 USING_NS_CC;
+using namespace ui;
+
 using std::queue;
 using std::fstream;
 using std::string;
 using std::endl; 
-std::queue<recvInfo> MyClient::recvQueue; 
-/***
-名称：初始化
-功能：连接服务端
-***/
 
-static inline GameScene* getGameScene()//留坑 不知道小伙伴们定义类的名字 
+std::queue<TransInfo> MyClient::recvQueue; 
+
+std::mutex g_lock;
+
+extern bool win; //留坑 
+
+/**
+static inline DJGameScene* getDJGameScene()//留坑 不知道小伙伴们定义类的名字 
 {
 	auto scene=Director::getInstance()->getRunningScene();
-	return dynamic_cast<GameScene*>(scene->getChildByTag(  )); //留坑 tag不晓得 
+	return dynamic_cast<DJGameScene*>(scene->getChildByTag(  )); //留坑 tag不晓得 
 }
 
-bool MyClient::init()
+static inline HYGameScene* getHYGameScene()//留坑 不知道小伙伴们定义类的名字 
+{
+	auto scene=Director::getInstance()->getRunningScene();
+	return dynamic_cast<HYGameScene*>(scene->getChildByTag(  )); //留坑 tag不晓得 
+}
+
+static inline YSGameScene* getYSGameScene()//留坑 不知道小伙伴们定义类的名字 
+{
+	auto scene=Director::getInstance()->getRunningScene();
+	return dynamic_cast<YSGameScene*>(scene->getChildByTag(  )); //留坑 tag不晓得 
+}
+**/
+template <class T>
+bool MyClient<T>::init()
 {
 	std::fstream outfile;
 	outfile.open("    ");  //留坑 
@@ -44,17 +62,16 @@ bool MyClient::init()
 		return false;
 	}
 	
-	if((ClientSock = socket(PF_INET, SOCK_STREAM, 0))== INVALID_SOCKET)   //创建失败 
-	{
-		WSACleanup(); 
-		outfile<<"bind socket error: "<<strerror(errno)<<"(error: "<<errno<<")"<<endl;  //not sure
-		return false;
-	} 
-	
 	memset(&ServerSockAddr,0,sizeof(ServerSockAddr));
 	ServerSockAddr.sin_family = PF_INET;            //指定ip地址和端口号 
 	ServerSockAddr.sin_port =  htons(PORTS);
 	ServerSockAddr.sin_addr.S_un.S_addr = inet_addr("  ");  //留坑 
+	
+	if((ClientSock = socket(PF_INET, SOCK_STREAM, 0))== INVALID_SOCKET)   //创建失败 
+	{
+		WSACleanup(); 
+		return false;
+	} 	
 	
 	unsigned long ul=1;
     int ret=ioctlsocket(ClientSock, FIONBIO, (unsigned long *)&ul);//设置成非阻塞模式。 
@@ -72,15 +89,15 @@ bool MyClient::init()
 	
 	if(connect(ClientSock,static_cast<LPSOCKADDR>(&ServerSockAddr),sizeof(ServerSockAddr))<0)
 	{
-		fd_set fd;
+		fd_set wfd;
 		struct timeval SuspendTime;
 		
-		FD_ZERO(&fd);
-		FD_SET(ClientSock,&fd);
+		FD_ZERO(&wfd);
+		FD_SET(ClientSock,&wfd);
 		SuspendTime.tv_sec= 0.1;
 		SuspendTime.tv_usec=0;
 		
-		int sel= select(ClientSocket, NULL, &fd, NULL, &SuspendTime);
+		int sel= select(ClientSocket, NULL, &wfd, NULL, &SuspendTime);
 		if (sel<= 0)
 		{
 			outfile << "connection fail"<<endl;
@@ -94,359 +111,243 @@ bool MyClient::init()
 	return true;
 }
 
-
-	
-DWORD WINAPI MyClient::Tansmission(LPVOID PROCURATOR1,LPVOID PROCURATOR2)  //塔 英雄 兵*3 
+template <class T>
+DWORD WINAPI MyClient<T>::InfoSendThread(LPVOID lpParam)  //塔 英雄 兵*3 
 {
-	MyClient *myclient1 = static_cast<MyClient *>(PROCURATOR1);
-	MyClient *myclient2 = static_cast<MyClient *>(PROCURATOR2);
-	
-	const int PACKAGE =       ;//留坑 每次发送包的长度未定 
-	
+	MyClient<T> *myclient = static_cast<MyClient<T> *>(lpParam); //留坑 
+	const int PACKAGE = 28 ;//留坑 每次发送包的长度未定 
 	char SendContent[1<<10];
-	
-	static int times = 0;
-	
+	TransInfo * reserve = nullptr;
+	TransInfo * send; 
+//	static int times = 0;
+
 	while(true)
 	{
-		WaitForSingleObject(myclient1->hMutex, INFINITE);
-		
-		fd_set wfd,rfd;
-		FD_ZERO(&rfd);
+		fd_set wfd;
 		FD_ZERO(&wfd);
-		
-		FD_SET(myclient1->ClientSock,&wfd);
-		FD_SET(myclient2->ClientSock,&rfd);
-		
-		int sel = select(0,&rfd,&wfd,NULL,NULL);
+		FD_SET(myclient->ClientSock,&wfd);
+		int sel = select(0,NULL,&wfd,NULL,NULL);
 		if(sel>0)
 		{
-			if(FD_SET(myclient1->ClientSock,&wfd))
+			if(FD_ISSET(myclient->ClientSock,&wfd))
 			{
-				BaseMonster* myplayer = dynamic_cast<BaseMonster*>(myclient1->runningGameScene->getChildByName("   "));
+				send = new TransInfo[1];
+				
+				BaseMonster* myplayer = dynamic_cast<BaseMonster*>(myclient->RunGameScene->getChildByName("myplayer"));
 				if(myplayer==nullptr)
 				{
-					return 0;
+					break;
 				}
-				int SendStill = myplayer->still;
-				
-				int SendAttack = 0;
-				SendAttack = myplayer->attack;
-				
-				int SendDirect = myplayer->direct;    
-        		
-				Vec2 pos = myplayer->getPosition();
-				
-				char SendData[1<<10];
-				ZeroMemory(SendData,sizeof(SendData));
-				
-				sprintf(SendData,"%d %d %d %f %f",SendStill,SendAttack,SendDirect,pos.x,pos.y);
-				
-				int sendByte = 0;
-				while(sendByte<PACKAGE)
+				if(   <=0) //水晶塔没血了 
 				{
-					int ret = send(myclient1->ClientSock,SendData,strlen(SendData)+sizeof(char),0);
-					sendByte += ret;
-					
-				}
-			}
-				if(FD_ISSET(myclient2->ClientSock,&rfd))
+			        send(myclient->ClientSock,"!Gameover_youwin!",strlen("!Gameover_youwin!")+sizeof(char),0);
+					win = 0;
+					break; 
+				} 
+				if(myplayer->isAttacking==true)
+				send->attack = 1;
+				else
+				send->attack = 0;
+				if(   ) //如果买了装备 
+				send->equip = 1;
+				else
+				send->equip = 0; 
+				if (typeid(*(myplayer->mCurState)).hash_code() == typeid(CharMove).hash_code() || send->attack ||send->equip) //留坑给py 
 				{
-					InfoRecv = new SendInfo[1];
-					BaseMonster* myplayer2 = dynamic_cast<BaseMonster*>(myclient2->runningGameScene->getChildByName("   "));
-			     	if(myplayer2==nullptr)
-		     		{
-		    			return 0;
-		     		}
-		     		int RecvStill = myplayer2->still;
-				
-		     		int RecvAttack = 0;
-	     			RecvAttack = myplayer2->attack;
-				
-	    			int RecvDirect = myplayer2->direct;    
-        		
-		     		Vec2 pos_2 = myplayer2->getPosition();
-				
-	     			char RecvData[PACKAGE*100];
-		    		ZeroMemory(RecvData,sizeof(RecvData));
-		    		
-		    		int RecvByte = 0;
-		    		int ret;
-				
-		     		while(RecvByte<PACKAGE)
-		     		{
-			     		int ret = recv(myclient2->ClientSock,RecvData,PACKAGE*100,0);
-			    		RecvByte += ret;
-				    }
-				    
-				    int len = RecvByte/PACKAGE;
-				    RecvData[PACKAGE] = '\0';
-				    
-				    for (int i = 0; i < len; i++)
-				    {
-				    	RecvInfo temp;
-		     			sscanf(RecvData + i*PACKAGE, "%d %d %d %f %f",&temp.still,&temp.attack,&temp.direct,&temp.Posx,&temp.Posy);
-	    				recvQueue.push(temp);
-		    		}
-		    		
-		    	}
-		    }
-		    ReleaseMutex(myclient1->hMutex);
-		}
-	return 1;
-}
-					/*
-					character* myplayer2 = dynamic_cast<character*> (myclient0->runningGameScene->getChildName("  "));
-					if(myplayer2 ==nullptr)
-					{
-						break;
-					}
+					send->direct = myplayer->direct;//留坑给py
+					Vec2 pos = myplayer->getPosition();
+					send->Posx = pos.x;
+					send->Posy = pos.y;
 					
-					if(mypalyer2->blood <= 0)
+					if(reserve!=nullptr)
 					{
-						send(myclient1->ClientSock,"#GAMEOVER! congratulations! you win!#",strlen("#GAMEOVER! congratulations! you win!#")+sizeof(char),0);
-						win = 0;
-						break;
-					}
-					
-					if(typeid(*(myplayer2->mCurState)).hash_code() == typeid(CharMove).hash_code())
-					{
- 						int InfoSend->Direct = myplayer->direct;    
-        	         	int InfoSend->Blood = myplayer->blood;   
-                		int InfoSend->HeroLevel = myplayer->HeroLevel;  
-                		int InfoSend->Money = myplayer->money;   
-                		int InfoSend->Buff = myplayer->Buff;  
-                 		int InfoSend->Experience = myplayer->experience;
-                		int InfoSend->Attack = myplayer->attack;
-                 		int InfoSend->StandardBuff = myplayer->StandardBuff;
-                 		int InfoSend->KillNum = myplayer->KillNum;
-                 		int InfoSend->KilledNum = myplayer->KilledNum;
-                 		int InfoSend->EquipIndex = myplayer->EquipIndex;
-                 		
-                 		Vec2 pos2 = myplayer2->getPosition();
-                 		
-                 		if(InfoReserved != nullptr)
-                 		{
-                 			if(!memcpy(InfoReserved,InfoSend,sizeof(InfoSend)))
-                 			{
-                 				times++;
-                 				if(times<200)
-                 				    continue;
-                 				else
-                 				    times = 0;
-							}
+						if(!memcmp(reserve,send,sizeof(reserve))&&!send->attack&&!send->equip)  //如果没动就不传 
+						{
+							times++;
+							if(time<200)
+							continue;
 							else
-							{
-								memcpy(InfoReserved,InfoSend,sizeof(InfoSend));
-							}
+							times = 0;
 						}
 						else
-						{
-							InfoReserved = new SendInfo[1];
-							memcpy(InfoReserved,InfoSend,sizeof(InfoSend));
-						}
-						
-						ZeroMemory(SendData,sizeof(SendData));
-						
-						sprinff(SendData,"%d %d %d %d %d %d %d %d %d %d %d %d %d %f %f",InfoSend->Direct,InfoSend->Blood,InfoSend->HeroLevel,InfoSend->Money,InfoSend->Buff,InfoSend->Experience,InfoSend->Attack,InfoSend->StandardBuff,InfoSend->KillNum,InfoSend->KilledNum,InfoSend->EquipIndex,pos2.x,pos2.y);
-						
-						int SendByte = 0;
-						while(SendByte<PACKAGE)
-						{
-							int ret = send(myclient1->ClientSock,SendData,strlen(SendData)+sizeof(char),0);
-							SendByte+=ret; 
-						} 
-						 
+						memcpy(reserve, send, sizeof(reserve));
 					}
-					*/ 
-	/*		    }
+					{
+						reserve = new TransInfo[1];
+						memcpy(reserve, send, sizeof(reserve));
+					} 
+					ZeroMemory(SendContent, sizeof(SendContent));
+					sprintf(SendContent,"%d %d %d %f %f",send->equip,send->attack,send->direct,pos.x,pos.y);
+					
+					int byte = 0;
+					while(byte<PACKAGE)
+					{
+						int m = send(myclient->ClientSock,SendContent,strlen(SendContent)+sizeof(char),0);
+						byte += m;
+					}
+				}
+				delete[]send;
 			}
 		}
-	} 
-	
-	if(InfoReserved != nullptr)
-	{
-		delete[]InfoReserved;
 	}
-	return 1;	
-}**/
-/***
-DWORD WINAPI MyClient::InfoRecvThread(LPVOID PROCURATOR)
+	if(reserve != nullptr)
+	{
+		delete[]reserve;
+	}
+	return 1;
+}
+//留坑 检查MyClient<T> 
+template<class T>
+DWORD WINAPI MyClient<T>::InfoRecvThread(LPVOID lpParam)
 {
-	MyClient *myclient1 = static_cast<MyClient *>(PROCURATOR);
-	const int PACKAGE =    ;
-	char RecvData[PACKAGE* 100];
-	
-	while(true)
+	MyClient<T> *myclient = static_cast<MyClient<T> *>(lpParam);
+	const int PACKAGE = 28;
+	char RecvContent[PACKAGE * 100];
+
+	while (true)
 	{
 		fd_set rfd;
 		FD_ZERO(&rfd);
-		FD_SET(myclient1->ClientSock,&rfd);
-		int sel = select(0,&rfd,NULL,NULL,NULL);
-		if(sel>0)
+		FD_SET(myclient->ClientSock, &rfd);
+		int sel = select(0, &rfd, NULL, NULL, NULL);
+		if (sel > 0)
 		{
-			if(FD_SET(myclient1->ClientSock,&rfd))
+			if (FD_ISSET(myclient->ClientSock, &rfd))
 			{
-				int direct;    //朝向 
-        		int blood;   //血量 
-        		int HeroLevel;  // 英雄等级 
-         		int money;   //钱 
-        		int Buff;  
-        		int experience;
-        		int attack;
-         		int StandardBuff;
-         		int KillNum;
-        		int KilledNum;
-	        	int EquipIndex;
-	        	ZeroMemory(RecvData,sizeof(RecvData));
+				ZeroMemory(RecvContent, sizeof(RecvContent));
+
+				int direct2;
+				int attack2 = 0;
 				
-				int temp = 0;
-				
-				int ret,len=0;
-				
-				while(recvByte<PACKAGE)
+				int byte2 = 0;
+				int n;
+				while (byte2 < PACKAGE)
 				{
-					ret = recv(myclient2->ClientSock,RecvData,PACKAGE*100,0);
-					if(ret == SOCKET_ERRO)
-					{
+					n = recv(myclient->ClientSock, RecvContent, PACKAGE * 100, 0);
+					if (n == SOCKET_ERROR)
 						continue;
-					}
-					len++;
+					byte2 += n;
 				}
-				
-				if(recvData[0] =='#')
+				RecvContent[PACKAGE] = '\0';
+
+				if (RecvContent[0] == '#')
 				{
 					win = 1;
 					break;
 				}
-				
-				recvData[PACKAGE] = '\0';
-				
-				for(int i =0;i<len;i++)
+
+				for (int i = 0; i < (byte2 / PACKAGE); i++)
 				{
-					RecvInfo temp;
-					sscanf(recvData+i*PACKAGE,"%d %d %d %d %d %d %d %d %d %d %d %d %d %f %f",&temp.Direct,&temp.Blood,&temp.HeroLevel,&temp.Money,&temp.Buff,&temp.Experience,&temp.Attack,&temp.StandardBuff,&temp.KillNum,&temp.KilledNum,&temp.EquipIndex,&temp.posx,&temp.posy);
-					
+					TransInfo temp;
+					sscanf(RecvContent + i*PACKAGE, "%d %d %d %f %f",&temp.equip, &temp.attack, &temp.direct,&temp.Posx, &temp.Posy);
+	
 					g_lock.lock();
-					RecvInfoQueue.push(temp);
+					recvQueue.push(temp);
 					g_lock.unlock();
 				}
 			}
 		}
-		
-		ReleaseMutex(myclient1->hMutex);
-		
 	}
-	
-	WaitForSingleObject(myclient1->hMutex,INFINITE);
-	return 1;
 }
-*/ 
 
-
-
-DWORD WINAPI MyClient::control(LPVOID lpParam)
+template <class T>
+DWORD WINAPI MyClient<T>::InfoControlThread(LPVOID lpParam)
 {
-	MyClient *myclinet = (MyClient *)lpParam;
+	MyClient<T> *myclient = (MyClient<T> *)lpParam;
+	//留坑 
+	BaseMonster* enemy = dynamic_cast<BaseMonster*>(myclient->RunGameScene->getChildByName("enenmy"));
 	
-	if(recvQueue.empty() == true)
-	{
-		return 0;
-	}
-	
-	BaseMonster * player2 = dynamic_cast<BaseMonster*>(myclient->runningGameScene->getChildByName("player2"));
-	WaitForSingleObject(myclient->hMutex,INFINITE);
 	while(true)
 	{
-		recvInfo temp;
+		TransInfo temp;
+		g_lock.lock();
 		if(!recvQueue.empty())
 		{
 			temp = recvQueue.front();
+			recvQueue.pop();
+			g_lock.unlock();
 		}
 		else
 		{
-			ReleaseMutex(myclient->hMutex);
-			break;
+			g_lock.unlock();
+			continue;
+		}
+		Vec2 Pos(temp.Posx,temp.Posy);
+		if(temp.attack)
+		{
+			
+			//留坑对接 
+			
+		}
+		if(temp.equip)
+		{
+			
+			//留坑对接 
+			
 		}
 		if(temp.Posx>0&&temp.Posy>0)
 		{
-			player2->setPosition(temp.Posx,temp.Posy);
+			enemy0>setPosition(temp.Posx,temp.Posy);
 		}
 		else
-		{
-			ReleaseMutex(myclient->hMutex);
-			break;
-		}
-		
-		Vec2 Pos(temp.Posx,temp.Posy);
-		
-		if(temp.attack)
-		{
-			//留坑 等对接再说吧 
-			
-			
-		}
-		if(!recvQueue.empty())
-		{
-			recvQueue.pop();
-		}
-		else
-		{
-			ReleaseMutex(myclient->hMutex);
-			break;
-		}
+		continue;
 	}
-	ReleaseMutex(myclient->hMutex);
-	WaitForSingleObject(myclient->hMutex.INFINITE);
 	return 1;
 }
 
 
-WINAPI MyClient::MyProcess(LPVOID procurator)
+template<class T>
+bool MyClient<T>::MyProcess(T* gamescene)
 {
-	if(!runningGameScene)
-	{
-		runningGameScene = getGameScene();
-		if(runningGameScene == nullptr)
-		{
-			return;
-		}
-	} 
-
-	HANDLE SendThread,RecvThread;
-	SendThread = CreateThread(NULL,0,static_cast<LPTHREAD_START_ROUTINE>(MyClient::InfoSendThread),static_cast<LPVOID>(this),0,NULL));
-	RecvThread = CreateThread(NULL,0,static_cast<LPTHREAD_START_ROUTINE>(MyClient::InfoRecvThread),static_cast<LPVOID>(this),0,NULL));
+	RunGameScene = gamescene;
+	
+	HANDLE SendThread,RecvThread,ControlThread;
+	SendThread = CreateThread(NULL,0,static_cast<LPTHREAD_START_ROUTINE>(MyClient<T>::InfoSendThread),static_cast<LPVOID>(this),0,NULL));
+	RecvThread = CreateThread(NULL,0,static_cast<LPTHREAD_START_ROUTINE>(MyClient<T>::InfoRecvThread),static_cast<LPVOID>(this),0,NULL));
+	ControlThread = CreateThread(NULL,0,static_cast<LPTHREAD_START_ROUTINE>(MyClient<T>::InfoControlThread),static_cast<LPVOID>(this),0,NULL)); //不确定留坑 
 	
 	CloseHandle(SendThread);
 	CloseHandle(RecvThread);
+	CloseHandle(ControlThread); 
 	
-	/***
-	hMutex = CreateMutex(nullptr,TRUE,TEXT("control"));
-	if(hMutex)
-	{
-		if(ERROR_ALREADY_EXISTS == GetLastError())
-		{
-			return;
-		}
-		
-	}
-	***/
-	
-	hMutex = CreateMutex(nullptr, TRUE, TEXT("Control"));
-	if (hMutex)
-	{
-		if (ERROR_ALREADY_EXISTS == GetLastError())
-		{
-			return;
-		}
-	}
-	WaitForSingleObject(hMutex, INFINITE);
-	ReleaseMutex(hMutex); 
-	ReleaseMutex(hMutex);
 	return true;
 }
 
-MyClient::~MyClient()
+template<class T> 
+bool MyClient<T>::GameConnect()
+{
+	char buf[25];
+	recv(ClientSock,buf,strlen(buf)+sizeof(char),0);
+	if(buf[0]=='#')
+	return true;
+} 
+
+template<class T>
+void MyClient<T>::MyHeroSelect(int type)
+{
+	MyType = type;
+	char buf[5];
+	ZeroMemory(buf,sizeof(buf));
+	sprintf(buf,"%d",type);
+	send(ClientSock,buf,strlen(buf)+sizeof(char),0);
+}
+template<class T>
+int MyClient<T>::EnemyHeroSelect()
+{
+	char buf[5];
+	ZeroMeory(buf,sizeof(buf));
+	recv(ClinetSock,buf,strlen(buf)+sizeof(char),0);
+	int type;
+	if(buf[0] =='0')
+	type = 0;
+	if(buf[0] == '1')
+	type = 1;
+	if(buf[0] == '2')
+	type = 2;
+	return type;
+}
+template <class T>
+MyClient<T>::~MyClient()
 {
 	closesocket(ClientSock);
 	WSACleanup();

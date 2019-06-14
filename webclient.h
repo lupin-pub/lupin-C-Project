@@ -8,33 +8,36 @@
 #include <queue>
 #pragma comment(lib,"ws2_32.lib")
 
-struct recvInfo
+struct TransInfo
 {
 		int direct;    
 		int attack;
-		int still;
+		int equip;
 		float Posx;
 		float Posy;
+		
 };
 
-class MyClient
+template <class T> class MyClient
 {
 	public:
 		~MyClient();
-		void MyProcess(); 
+		bool MyProcess(T* gamescene); 
 		bool virtual init();
 		
-		static DWORD WINAPI transmission(LPVOID lpParam);
-		static DWORD WINAPI control(LPVOID lpParam);
+		static DWORD WINAPI InfoSendThread(LPVOID lpParam);
+		static DWORD WINAPI InfoRecvThread(LPVOID lpParam);
+		static DWORD WINAPI InfoRecvThread(LPVOID lpParam);
 		
 		SOCKET ClientSock;
 		struct sockaddr_in ServerSockAddr;
-		char RecvBuf[1<<10];
-		char SendBuff[1<<10];
+		//char RecvBuf[1<<10];ÁÄÌì 
+		//char SendBuff[1<<10];
 		
 	private:
-		GameScene* runningGameScene;
+		T* RunGameScene;
 		HANDLE hMutex;
-		static std::queue<recvInfo> recvQueue;
+		static std::queue<InfoRecv> recvQueue;
+		
 };
 
